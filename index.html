@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ObjectiveService — API Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #080c14;
+    --bg2:       #0d1421;
+    --bg3:       #111827;
+    --bg4:       #1a2235;
+    --border:    #1e2d45;
+    --border2:   #243450;
+    --accent:    #3b82f6;
+    --accent2:   #60a5fa;
+    --accent3:   #93c5fd;
+    --green:     #22d3a5;
+    --green2:    #6ee7c7;
+    --yellow:    #fbbf24;
+    --red:       #f87171;
+    --purple:    #a78bfa;
+    --text:      #e2e8f0;
+    --text2:     #94a3b8;
+    --text3:     #64748b;
+    --server:    #f87171;
+    --client:    #34d399;
+    --both:      #fbbf24;
+    --radius:    8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo .logo-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h1 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .sidebar-logo .version {
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  .sidebar-nav { padding: 16px 0; flex: 1; }
+
+  .nav-group { margin-bottom: 4px; }
+
+  .nav-group-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 10px 24px 6px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+    text-decoration: none;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--text);
+    background: var(--bg4);
+    border-left-color: var(--accent);
+  }
+
+  .nav-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border2);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .nav-link:hover .nav-dot, .nav-link.active .nav-dot { background: var(--accent); }
+
+  .badge {
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+  .badge.s { background: rgba(248,113,113,0.15); color: var(--server); border: 1px solid rgba(248,113,113,0.2); }
+  .badge.c { background: rgba(52,211,153,0.15); color: var(--client); border: 1px solid rgba(52,211,153,0.2); }
+  .badge.b { background: rgba(251,191,36,0.15); color: var(--both); border: 1px solid rgba(251,191,36,0.2); }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    padding: 0 60px 80px;
+    max-width: 900px;
+    min-width: 0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 64px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text) 30%, var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 17px;
+    color: var(--text2);
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 28px;
+  }
+
+  .hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .hero-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: var(--bg2);
+    font-size: 12px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 64px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .section h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section h3::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+    display: block;
+  }
+
+  .section p {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.75;
+    margin-bottom: 16px;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--bg4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span { width: 8px; height: 8px; border-radius: 50%; }
+  .code-dots span:nth-child(1) { background: #ef4444; }
+  .code-dots span:nth-child(2) { background: #f59e0b; }
+  .code-dots span:nth-child(3) { background: #22c55e; }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .k { color: #c084fc; }  /* keyword */
+  .f { color: #60a5fa; }  /* function call */
+  .s { color: #86efac; }  /* string */
+  .c { color: #475569; }  /* comment */
+  .n { color: #f9a8d4; }  /* param name */
+  .v { color: #fbbf24; }  /* value/number */
+  .t { color: #e2e8f0; }  /* plain text */
+
+  /* ── INFO BOX ── */
+  .info-box {
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-left: 3px solid;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .info-box.info  { background: rgba(59,130,246,0.07); border-color: var(--accent); }
+  .info-box.warn  { background: rgba(251,191,36,0.07); border-color: var(--yellow); }
+  .info-box.tip   { background: rgba(34,211,165,0.07); border-color: var(--green); }
+
+  .info-box .icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+  .info-box p { margin: 0; font-size: 14px; line-height: 1.65; }
+  .info-box.info  p { color: var(--accent3); }
+  .info-box.warn  p { color: #fde68a; }
+  .info-box.tip   p { color: var(--green2); }
+
+  /* ── FUNCTION CARDS ── */
+  .fn-grid { display: flex; flex-direction: column; gap: 12px; }
+
+  .fn-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .fn-card:hover { border-color: var(--border2); }
+
+  .fn-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .fn-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .fn-where {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+  .fn-where.server { background: rgba(248,113,113,0.15); color: var(--server); border: 1px solid rgba(248,113,113,0.25); }
+  .fn-where.client { background: rgba(52,211,153,0.15); color: var(--client); border: 1px solid rgba(52,211,153,0.25); }
+  .fn-where.both   { background: rgba(251,191,36,0.15); color: var(--both); border: 1px solid rgba(251,191,36,0.25); }
+
+  .fn-desc {
+    font-size: 13px;
+    color: var(--text2);
+    padding: 0 18px 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    line-height: 1.6;
+  }
+
+  .fn-params {
+    padding: 0 18px 14px;
+  }
+
+  .fn-params-title {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .param-row {
+    display: grid;
+    grid-template-columns: 160px 120px 1fr;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .param-row:last-child { border-bottom: none; }
+
+  .param-name { font-family: 'JetBrains Mono', monospace; color: #f9a8d4; }
+  .param-type { font-family: 'JetBrains Mono', monospace; color: #86efac; }
+  .param-desc { color: var(--text2); }
+
+  /* ── FULL REF TABLE ── */
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+
+  .ref-table th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text3);
+    font-weight: 600;
+  }
+
+  .ref-table td {
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    vertical-align: top;
+  }
+
+  .ref-table tr:hover td { background: var(--bg3); }
+
+  .ref-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+
+  .ref-table td:nth-child(2) { color: var(--text2); }
+
+  /* ── EVENT CARDS ── */
+  .event-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .event-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  .event-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--purple);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .event-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .event-param {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--bg4);
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  /* ── MISC ── */
+  .inline-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .divider { height: 1px; background: var(--border); margin: 48px 0; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero { animation: fadeUp 0.5s ease both; }
+  .section { animation: fadeUp 0.5s ease both; }
+  .section:nth-child(2) { animation-delay: 0.05s; }
+  .section:nth-child(3) { animation-delay: 0.10s; }
+  .section:nth-child(4) { animation-delay: 0.15s; }
+
+  /* ── GLOW ACCENT ── */
+  .hero h1 { text-shadow: 0 0 80px rgba(59,130,246,0.2); }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-tag">Roblox Module</div>
+      <h1>ObjectiveService</h1>
+      <span class="version">v1.0.0</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-title">Getting Started</div>
+        <a class="nav-link active" href="#intro"><span class="nav-dot"></span>Introduction</a>
+        <a class="nav-link" href="#setup"><span class="nav-dot"></span>Setup</a>
+        <a class="nav-link" href="#quickstart"><span class="nav-dot"></span>Quick Start</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Core API</div>
+        <a class="nav-link" href="#init"><span class="nav-dot"></span>init <span class="badge c">Client</span></a>
+        <a class="nav-link" href="#objectives"><span class="nav-dot"></span>Objectives <span class="badge b">Both</span></a>
+        <a class="nav-link" href="#modifiers"><span class="nav-dot"></span>Modifiers <span class="badge b">Both</span></a>
+        <a class="nav-link" href="#visibility"><span class="nav-dot"></span>Visibility <span class="badge b">Both</span></a>
+        <a class="nav-link" href="#utils"><span class="nav-dot"></span>Utilities <span class="badge b">Both</span></a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Systems</div>
+        <a class="nav-link" href="#steps"><span class="nav-dot"></span>Steps</a>
+        <a class="nav-link" href="#timer"><span class="nav-dot"></span>Timer</a>
+        <a class="nav-link" href="#queue"><span class="nav-dot"></span>Queue</a>
+        <a class="nav-link" href="#save"><span class="nav-dot"></span>Save / Cross-Place</a>
+        <a class="nav-link" href="#events"><span class="nav-dot"></span>Events</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Server</div>
+        <a class="nav-link" href="#server"><span class="nav-dot"></span>Server Functions <span class="badge s">Server</span></a>
+        <a class="nav-link" href="#serverall"><span class="nav-dot"></span>Broadcast (All) <span class="badge s">Server</span></a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">Reference</div>
+        <a class="nav-link" href="#fullref"><span class="nav-dot"></span>Full Reference</a>
+        <a class="nav-link" href="#configure"><span class="nav-dot"></span>Configure</a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero" id="intro">
+      <div class="hero-eyebrow">API Reference</div>
+      <h1>ObjectiveService</h1>
+      <p>A complete objective system for Roblox. Works on both Server and Client, supports cross-place saving, steps, timers, queues, and full event hooks — all through a single ModuleScript.</p>
+      <div class="hero-badges">
+        <div class="hero-badge"><span class="dot" style="background:var(--green)"></span>Client & Server</div>
+        <div class="hero-badge"><span class="dot" style="background:var(--accent)"></span>Cross-Place Save</div>
+        <div class="hero-badge"><span class="dot" style="background:var(--purple)"></span>Event Hooks</div>
+        <div class="hero-badge"><span class="dot" style="background:var(--yellow)"></span>Steps & Timer</div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="section" id="setup">
+      <div class="section-header">
+        <span class="section-number">01</span>
+        <h2>Setup</h2>
+      </div>
+      <p>Place the ModuleScript anywhere accessible (e.g. <span class="inline-code">ReplicatedStorage</span>). The module auto-detects if it's running on the Server or Client and behaves accordingly.</p>
+
+      <div class="info-box info">
+        <span class="icon">ℹ</span>
+        <p>The <span class="inline-code">init()</span> function is <strong>Client-only</strong> and must be called once before any other function. On the Server, no init is required — just require and call.</p>
+      </div>
+
+      <h3>Client LocalScript</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau — LocalScript</span></div>
+        <pre><span class="k">local</span> <span class="t">svc</span> <span class="t">=</span> <span class="f">require</span><span class="t">(</span><span class="s">game.ReplicatedStorage.ObjectiveService</span><span class="t">)</span>
+
+<span class="t">svc.</span><span class="f">init</span><span class="t">({</span>
+    <span class="n">frame</span>         <span class="t">=</span> <span class="t">script.Parent.Main,</span>
+    <span class="n">titleLabel</span>    <span class="t">=</span> <span class="t">script.Parent.Main.Objectives.Obj.Objective1,</span>
+    <span class="n">tickIcon</span>      <span class="t">=</span> <span class="t">script.Parent.Main.Objectives.Obj.Tick,</span>
+    <span class="n">progressLabel</span> <span class="t">=</span> <span class="t">script.Parent.Main.Objectives.Progress.ProgressTxt,</span>
+<span class="t">})</span></pre>
+      </div>
+
+      <h3>Server Script</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau — Script</span></div>
+        <pre><span class="k">local</span> <span class="t">svc</span> <span class="t">=</span> <span class="f">require</span><span class="t">(</span><span class="s">game.ReplicatedStorage.ObjectiveService</span><span class="t">)</span>
+
+<span class="c">-- No init() needed on the server</span>
+<span class="t">svc.</span><span class="f">add</span><span class="t">(player,</span> <span class="s">"Find the key."</span><span class="t">,</span> <span class="k">nil</span><span class="t">,</span> <span class="s">"Find the hidden key"</span><span class="t">)</span></pre>
+      </div>
+    </div>
+
+    <!-- QUICK START -->
+    <div class="section" id="quickstart">
+      <div class="section-header">
+        <span class="section-number">02</span>
+        <h2>Quick Start</h2>
+      </div>
+
+      <h3>Simple objective</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="c">-- Text-only objective (no counter)</span>
+<span class="t">svc.</span><span class="f">add</span><span class="t">(</span><span class="s">"Find the exit."</span><span class="t">,</span> <span class="k">nil</span><span class="t">,</span> <span class="s">"Reach the gate"</span><span class="t">)</span>
+
+<span class="c">-- Complete it manually</span>
+<span class="t">svc.</span><span class="f">finish</span><span class="t">()</span></pre>
+      </div>
+
+      <h3>Objective with counter</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="t">svc.</span><span class="f">add</span><span class="t">(</span><span class="s">"Collect crystals."</span><span class="t">,</span> <span class="v">5</span><span class="t">,</span> <span class="s">"Crystals: "</span><span class="t">)</span>
+
+<span class="c">-- When player picks one up:</span>
+<span class="t">svc.</span><span class="f">increment</span><span class="t">()</span>  <span class="c">-- 1/5, 2/5, 3/5...</span>
+
+<span class="c">-- Or set directly:</span>
+<span class="t">svc.</span><span class="f">update</span><span class="t">(</span><span class="v">3</span><span class="t">)</span>    <span class="c">-- jumps to 3/5</span>
+
+<span class="c">-- Auto-completes when reaching 5/5!</span></pre>
+      </div>
+
+      <h3>With options</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="t">svc.</span><span class="f">add</span><span class="t">(</span><span class="s">"Survive the wave!"</span><span class="t">,</span> <span class="k">nil</span><span class="t">,</span> <span class="k">nil</span><span class="t">, {</span>
+    <span class="n">persistent</span>  <span class="t">=</span> <span class="k">true</span><span class="t">,</span>     <span class="c">-- stays visible, never auto-hides</span>
+    <span class="n">onComplete</span>  <span class="t">=</span> <span class="k">function</span><span class="t">(obj)</span>
+        <span class="f">print</span><span class="t">(</span><span class="s">"Done!"</span><span class="t">, obj.title)</span>
+    <span class="k">end</span><span class="t">,</span>
+    <span class="n">data</span>        <span class="t">= {</span> <span class="n">reward</span> <span class="t">=</span> <span class="v">500</span><span class="t">, </span><span class="n">type</span> <span class="t">=</span> <span class="s">"main"</span> <span class="t">},</span>
+<span class="t">})</span></pre>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- INIT -->
+    <div class="section" id="init">
+      <div class="section-header">
+        <span class="section-number">03</span>
+        <h2>init(config)</h2>
+      </div>
+      <p>Initializes the service and binds your UI elements. Must be called once on the client before anything else. All fields except <span class="inline-code">frame</span> are optional — if omitted, that UI feature is simply skipped.</p>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="t">svc.</span><span class="f">init</span><span class="t">({</span>
+    <span class="n">frame</span>         <span class="t">=</span> <span class="t">Frame,</span>      <span class="c">-- REQUIRED: root container</span>
+    <span class="n">titleLabel</span>    <span class="t">=</span> <span class="t">TextLabel,</span>  <span class="c">-- objective title text</span>
+    <span class="n">tickIcon</span>      <span class="t">=</span> <span class="t">ImageLabel,</span> <span class="c">-- completion checkmark</span>
+    <span class="n">progressLabel</span> <span class="t">=</span> <span class="t">TextLabel,</span>  <span class="c">-- counter / progress text</span>
+<span class="t">})</span></pre>
+      </div>
+
+      <div class="info-box warn">
+        <span class="icon">⚠</span>
+        <p>The <span class="inline-code">frame</span> must be a <strong>Frame</strong> (not a ScreenGui). The ScreenGui should stay enabled — the service controls visibility through the Frame's <span class="inline-code">Visible</span> property and child transparencies.</p>
+      </div>
+    </div>
+
+    <!-- OBJECTIVES -->
+    <div class="section" id="objectives">
+      <div class="section-header">
+        <span class="section-number">04</span>
+        <h2>Objectives</h2>
+      </div>
+
+      <div class="fn-grid">
+
+        <div class="fn-card">
+          <div class="fn-card-header">
+            <span class="fn-name">add(title, total?, label?, options?)</span>
+            <span class="fn-where both">Both</span>
+          </div>
+          <div class="fn-desc">Creates a new objective. Cancels any previous hide timer and shows the UI with a fade-in animation. If <span class="inline-code">total</span> is provided, shows a counter. On the Server, pass <span class="inline-code">player</span> as the first argument.</div>
+          <div class="fn-params">
+            <div class="fn-params-title">Parameters</div>
+            <div class="param-row"><span class="param-name">title</span><span class="param-type">string</span><span class="param-desc">The objective text shown in titleLabel</span></div>
+            <div class="param-row"><span class="param-name">total</span><span class="param-type">number?</span><span class="param-desc">Max count. When progress reaches this, auto-completes</span></div>
+            <div class="param-row"><span class="param-name">label</span><span class="param-type">string?</span><span class="param-desc">Text shown in progressLabel (e.g. "Crystals: " or fixed text)</span></div>
+            <div class="param-row"><span class="param-name">options</span><span class="param-type">table?</span><span class="param-desc">See options table below</span></div>
+          </div>
+        </div>
+
+        <div class="fn-card">
+          <div class="fn-card-header">
+            <span class="fn-name">update(progress)</span>
+            <span class="fn-where both">Both</span>
+          </div>
+          <div class="fn-desc">Sets the current progress to a specific value. Re-shows the UI and restarts the hide timer. Automatically calls <span class="inline-code">finish()</span> when progress reaches total.</div>
+          <div class="fn-params">
+            <div class="fn-params-title">Parameters</div>
+            <div class="param-row"><span class="param-name">progress</span><span class="param-type">number</span><span class="param-desc">The new progress value</span></div>
+          </div>
+        </div>
+
+        <div class="fn-card">
+          <div class="fn-card-header">
+            <span class="fn-name">increment()</span>
+            <span class="fn-where both">Both</span>
+          </div>
+          <div class="fn-desc">Adds +1 to the current progress. Shorthand for <span class="inline-code">update(progress + 1)</span>.</div>
+        </div>
+
+        <div class="fn-card">
+          <div class="fn-card-header">
+            <span class="fn-name">decrement()</span>
+            <span class="fn-where both">Both</span>
+          </div>
+          <div class="fn-desc">Subtracts 1 from the current progress. Will not go below 0.</div>
+        </div>
+
+        <div class="fn-card">
+          <div class="fn-card-header">
+            <span class="fn-name">finish()</span>
+            <span class="fn-where both">Both</span>
+          </div>
+          <div class="fn-desc">Marks the objective as complete. Re-shows the UI if hidden, waits 1s, shows the tick icon, waits 1.5s, then fades out and clears the objective. Fires <span class="inline-code">onFinish</span> and processes the queue if any.</div>
+        </div>
+
+        <div class="fn-card">
+          <div class="fn-card-header">
+            <span class="fn-name">cancel()</span>
+            <span class="fn-where both">Both</span>
+          </div>
+          <div class="fn-desc">Cancels the current objective without showing the tick. Fades out and clears. Fires <span class="inline-code">onCancel</span> and processes the queue if any.</div>
+        </div>
+
+        <div class="fn-card">
+          <div class="fn-card-header">
+            <span class="fn-name">reset()</span>
+            <span class="fn-where both">Both</span>
+          </div>
+          <div class="fn-desc">Resets progress to 0 and currentStep to 1 without canceling the objective. Re-shows the UI.</div>
+        </div>
+
+      </div>
+
+      <h3>Options table</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="t">{</span>
+    <span class="n">persistent</span>  <span class="t">=</span> <span class="k">bool</span><span class="t">,</span>   <span class="c">-- if true, UI never auto-hides</span>
+    <span class="n">timerMode</span>   <span class="t">=</span> <span class="k">bool</span><span class="t">,</span>   <span class="c">-- if true, progressLabel shows countdown</span>
+    <span class="n">timer</span>       <span class="t">=</span> <span class="k">number</span><span class="t">,</span> <span class="c">-- starts a countdown (seconds) immediately</span>
+    <span class="n">onComplete</span>  <span class="t">=</span> <span class="k">function</span><span class="t">(obj),</span> <span class="c">-- callback only for this objective</span>
+    <span class="n">onCancel</span>    <span class="t">=</span> <span class="k">function</span><span class="t">(obj),</span> <span class="c">-- callback if this objective is cancelled</span>
+    <span class="n">data</span>        <span class="t">= {},</span>      <span class="c">-- free custom data table, accessible via getData()</span>
+<span class="t">}</span></pre>
+      </div>
+    </div>
+
+    <!-- MODIFIERS -->
+    <div class="section" id="modifiers">
+      <div class="section-header">
+        <span class="section-number">05</span>
+        <h2>Dynamic Modifiers</h2>
+      </div>
+      <p>Change any property of the active objective at any time without re-creating it.</p>
+
+      <table class="ref-table">
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>setTitle(title)</td><td>Changes the title text and re-shows the UI</td></tr>
+          <tr><td>setLabel(label)</td><td>Changes the progress label text and re-shows</td></tr>
+          <tr><td>setTotal(total)</td><td>Changes the max count and re-syncs the progress display</td></tr>
+          <tr><td>setProgress(n)</td><td>Alias for update(n)</td></tr>
+          <tr><td>setData(key, value)</td><td>Stores a custom value in the objective's data table</td></tr>
+          <tr><td>getData(key)</td><td>Returns a value from the objective's data table</td></tr>
+          <tr><td>setPersistent(bool)</td><td>Enables or disables auto-hide for the current objective</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- VISIBILITY -->
+    <div class="section" id="visibility">
+      <div class="section-header">
+        <span class="section-number">06</span>
+        <h2>Visibility</h2>
+      </div>
+
+      <table class="ref-table">
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>show()</td><td>Forces the UI to appear and restarts the hide timer</td></tr>
+          <tr><td>hide()</td><td>Fades out and hides the UI (does not clear the objective)</td></tr>
+          <tr><td>pause()</td><td>Cancels the hide timer so the UI stays visible indefinitely</td></tr>
+          <tr><td>resume()</td><td>Re-starts the hide timer if the UI is currently visible</td></tr>
+          <tr><td>isVisible()</td><td>Returns true if the frame is currently visible</td></tr>
+          <tr><td>isPaused()</td><td>Returns true if the hide timer is currently paused</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- UTILS -->
+    <div class="section" id="utils">
+      <div class="section-header">
+        <span class="section-number">07</span>
+        <h2>Utilities</h2>
+      </div>
+
+      <table class="ref-table">
+        <thead><tr><th>Function</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>isActive()</td><td>boolean</td><td>True if there is a current objective running</td></tr>
+          <tr><td>get()</td><td>table | nil</td><td>Returns the full current objective table</td></tr>
+          <tr><td>getTitle()</td><td>string | nil</td><td>Returns the current objective's title</td></tr>
+          <tr><td>getProgress()</td><td>number</td><td>Returns current progress (0 if inactive)</td></tr>
+          <tr><td>getTotal()</td><td>number | nil</td><td>Returns current total (nil if no counter)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEPS -->
+    <div class="section" id="steps">
+      <div class="section-header">
+        <span class="section-number">08</span>
+        <h2>Steps System</h2>
+      </div>
+      <p>Break an objective into sequential named steps. The progressLabel will automatically show which step the player is on.</p>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="t">svc.</span><span class="f">add</span><span class="t">(</span><span class="s">"Complete the mission."</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">addStep</span><span class="t">(</span><span class="s">"Enter the building"</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">addStep</span><span class="t">(</span><span class="s">"Find the key"</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">addStep</span><span class="t">(</span><span class="s">"Escape"</span><span class="t">)</span>
+
+<span class="c">-- progressLabel shows: "Step 1/3: Enter the building"</span>
+
+<span class="t">svc.</span><span class="f">completeStep</span><span class="t">()</span> <span class="c">-- "Step 2/3: Find the key"</span>
+<span class="t">svc.</span><span class="f">completeStep</span><span class="t">()</span> <span class="c">-- "Step 3/3: Escape"</span>
+<span class="t">svc.</span><span class="f">completeStep</span><span class="t">()</span> <span class="c">-- auto-calls finish()!</span></pre>
+      </div>
+
+      <table class="ref-table" style="margin-top:16px">
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>addStep(title)</td><td>Appends a new step to the current objective</td></tr>
+          <tr><td>completeStep()</td><td>Advances to the next step, or calls finish() on the last</td></tr>
+          <tr><td>getCurrentStep()</td><td>Returns the current step index</td></tr>
+          <tr><td>getSteps()</td><td>Returns the full steps array</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TIMER -->
+    <div class="section" id="timer">
+      <div class="section-header">
+        <span class="section-number">09</span>
+        <h2>Timer System</h2>
+      </div>
+      <p>Add a countdown to an objective. When the timer reaches zero, <span class="inline-code">finish()</span> is called automatically.</p>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="c">-- Start with a timer immediately</span>
+<span class="t">svc.</span><span class="f">add</span><span class="t">(</span><span class="s">"Defuse the bomb!"</span><span class="t">,</span> <span class="k">nil</span><span class="t">,</span> <span class="s">"Time: "</span><span class="t">, {</span>
+    <span class="n">timer</span>     <span class="t">=</span> <span class="v">30</span><span class="t">,</span>
+    <span class="n">timerMode</span> <span class="t">=</span> <span class="k">true</span><span class="t">,</span>  <span class="c">-- shows "Time: 30s" in progressLabel</span>
+<span class="t">})</span>
+
+<span class="c">-- Or add timer after creation</span>
+<span class="t">svc.</span><span class="f">add</span><span class="t">(</span><span class="s">"Survive!"</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">setTimer</span><span class="t">(</span><span class="v">60</span><span class="t">)</span>
+
+<span class="c">-- Listen to each tick</span>
+<span class="t">svc.</span><span class="f">on</span><span class="t">(</span><span class="s">"onTimerTick"</span><span class="t">,</span> <span class="k">function</span><span class="t">(remaining, total)</span>
+    <span class="k">if</span> <span class="t">remaining</span> <span class="t">==</span> <span class="v">10</span> <span class="k">then</span>
+        <span class="f">print</span><span class="t">(</span><span class="s">"10 seconds left!"</span><span class="t">)</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="t">)</span></pre>
+      </div>
+
+      <table class="ref-table" style="margin-top:16px">
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>setTimer(seconds)</td><td>Starts a countdown. Auto-calls finish() at 0</td></tr>
+          <tr><td>stopTimer()</td><td>Stops the countdown without finishing the objective</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="section" id="queue">
+      <div class="section-header">
+        <span class="section-number">10</span>
+        <h2>Queue System</h2>
+      </div>
+      <p>Chain multiple objectives one after another. Each queued objective starts automatically 0.5s after the previous one finishes or is cancelled.</p>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="t">svc.</span><span class="f">queue</span><span class="t">(</span><span class="s">"Find the entrance."</span><span class="t">,</span> <span class="k">nil</span><span class="t">,</span> <span class="s">"Find the gate"</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">queue</span><span class="t">(</span><span class="s">"Collect keys."</span><span class="t">,</span> <span class="v">3</span><span class="t">,</span> <span class="s">"Keys: "</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">queue</span><span class="t">(</span><span class="s">"Reach the portal."</span><span class="t">,</span> <span class="k">nil</span><span class="t">,</span> <span class="s">"Get to safety"</span><span class="t">)</span>
+
+<span class="c">-- They'll play one by one automatically!</span>
+<span class="f">print</span><span class="t">(</span><span class="t">svc.</span><span class="f">getQueueSize</span><span class="t">())</span> <span class="c">-- 2 (first one starts immediately)</span></pre>
+      </div>
+
+      <table class="ref-table" style="margin-top:16px">
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>queue(title, total?, label?, options?)</td><td>Adds to queue. If no active objective, starts immediately</td></tr>
+          <tr><td>clearQueue()</td><td>Empties the queue (does not affect the current objective)</td></tr>
+          <tr><td>getQueue()</td><td>Returns the queue array</td></tr>
+          <tr><td>getQueueSize()</td><td>Returns the number of objectives waiting in queue</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SAVE -->
+    <div class="section" id="save">
+      <div class="section-header">
+        <span class="section-number">11</span>
+        <h2>Save & Cross-Place</h2>
+      </div>
+      <p>Persist objectives across sessions and across different Places in the same game using DataStore. All save functions are <strong>Server-only</strong>.</p>
+
+      <div class="info-box tip">
+        <span class="icon">✦</span>
+        <p>Call <span class="inline-code">load(player)</span> on <span class="inline-code">PlayerAdded</span> to automatically restore the objective when a player enters a Place. The client receives a <span class="inline-code">LoadSave</span> remote and the <span class="inline-code">onLoad</span> event fires.</p>
+      </div>
+
+      <h3>Cross-Place Example</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau — Place 1 (Server)</span></div>
+        <pre><span class="c">-- Create and save progress</span>
+<span class="t">svc.</span><span class="f">add</span><span class="t">(player,</span> <span class="s">"Collect gems."</span><span class="t">,</span> <span class="v">10</span><span class="t">,</span> <span class="s">"Gems: "</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">update</span><span class="t">(player,</span> <span class="v">4</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">save</span><span class="t">(player)</span>
+
+<span class="c">-- Or teleport (auto-saves before teleporting)</span>
+<span class="t">svc.</span><span class="f">teleport</span><span class="t">(player,</span> <span class="v">PLACE_ID_2</span><span class="t">)</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau — Place 2 (Server)</span></div>
+        <pre><span class="t">Players.PlayerAdded:</span><span class="f">Connect</span><span class="t">(</span><span class="k">function</span><span class="t">(player)</span>
+    <span class="t">svc.</span><span class="f">load</span><span class="t">(player)</span>  <span class="c">-- restores "Collect gems." at 4/10!</span>
+<span class="k">end</span><span class="t">)</span></pre>
+      </div>
+
+      <table class="ref-table" style="margin-top:16px">
+        <thead><tr><th>Function</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>save(player, placeId?)</td><td>Saves current progress to DataStore. Optional placeId to save for a specific place</td></tr>
+          <tr><td>load(player, placeId?)</td><td>Loads saved progress and sends it to the client. Optional placeId</td></tr>
+          <tr><td>teleport(player, placeId, opts?)</td><td>Saves progress then teleports the player. Load on arrival</td></tr>
+          <tr><td>clearSave(player, placeId?)</td><td>Deletes saved data from DataStore</td></tr>
+          <tr><td>hasSave(player, placeId?)</td><td>Returns true if a save exists for the player</td></tr>
+          <tr><td>getState(player)</td><td>Returns current in-memory state without hitting DataStore</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box info">
+        <span class="icon">ℹ</span>
+        <p><span class="inline-code">finish()</span> and <span class="inline-code">cancel()</span> on the server automatically delete the DataStore entry — no need to call <span class="inline-code">clearSave()</span> manually when completing an objective.</p>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="section" id="events">
+      <div class="section-header">
+        <span class="section-number">12</span>
+        <h2>Events</h2>
+      </div>
+      <p>Subscribe to lifecycle events using <span class="inline-code">on()</span> and unsubscribe with <span class="inline-code">off()</span>. All events are <strong>Client-only</strong>.</p>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="k">local function</span> <span class="f">onUpdate</span><span class="t">(obj)</span>
+    <span class="f">print</span><span class="t">(obj.title, obj.progress, obj.total)</span>
+<span class="k">end</span>
+
+<span class="t">svc.</span><span class="f">on</span><span class="t">(</span><span class="s">"onUpdate"</span><span class="t">, onUpdate)</span>
+
+<span class="c">-- Remove later</span>
+<span class="t">svc.</span><span class="f">off</span><span class="t">(</span><span class="s">"onUpdate"</span><span class="t">, onUpdate)</span></pre>
+      </div>
+
+      <div class="event-grid">
+        <div class="event-card">
+          <div class="event-name">onAdd</div>
+          <div class="event-desc">Fires when a new objective is created</div>
+          <span class="event-param">obj: table</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onUpdate</div>
+          <div class="event-desc">Fires whenever progress changes</div>
+          <span class="event-param">obj: table</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onFinish</div>
+          <div class="event-desc">Fires after the completion animation ends</div>
+          <span class="event-param">obj: table</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onCancel</div>
+          <div class="event-desc">Fires when an objective is cancelled</div>
+          <span class="event-param">obj: table</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onTimerTick</div>
+          <div class="event-desc">Fires every second during a countdown</div>
+          <span class="event-param">remaining: number, total: number</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onTimerEnd</div>
+          <div class="event-desc">Fires when a timer reaches zero</div>
+          <span class="event-param">obj: table</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onStepComplete</div>
+          <div class="event-desc">Fires when a step is completed</div>
+          <span class="event-param">stepIndex: number, obj: table</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onQueue</div>
+          <div class="event-desc">Fires when a new item is added to the queue</div>
+          <span class="event-param">queue: table</span>
+        </div>
+        <div class="event-card">
+          <div class="event-name">onLoad</div>
+          <div class="event-desc">Fires when a saved objective is loaded from DataStore</div>
+          <span class="event-param">data: table</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- SERVER FUNCTIONS -->
+    <div class="section" id="server">
+      <div class="section-header">
+        <span class="section-number">13</span>
+        <h2>Server Functions</h2>
+      </div>
+      <p>All client functions are available on the Server. Just pass a <span class="inline-code">player</span> as the first argument. The server fires a RemoteEvent to the target client automatically.</p>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--server)"></div>Server only</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--client)"></div>Client only</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--both)"></div>Both (signature differs)</div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau — Script (Server)</span></div>
+        <pre><span class="c">-- Same functions, player is first arg</span>
+<span class="t">svc.</span><span class="f">add</span><span class="t">(player,</span> <span class="s">"Destroy targets."</span><span class="t">,</span> <span class="v">3</span><span class="t">,</span> <span class="s">"Targets: "</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">increment</span><span class="t">(player)</span>
+<span class="t">svc.</span><span class="f">setTitle</span><span class="t">(player,</span> <span class="s">"Almost there!"</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">pause</span><span class="t">(player)</span>
+<span class="t">svc.</span><span class="f">finish</span><span class="t">(player)</span>
+<span class="t">svc.</span><span class="f">configure</span><span class="t">(player, {</span> <span class="n">hideDelay</span> <span class="t">=</span> <span class="v">5</span> <span class="t">})</span></pre>
+      </div>
+    </div>
+
+    <!-- BROADCAST -->
+    <div class="section" id="serverall">
+      <div class="section-header">
+        <span class="section-number">14</span>
+        <h2>Broadcast (All Players)</h2>
+      </div>
+      <p>Send an objective to every player at once using the <span class="inline-code">All</span> variants.</p>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau — Script (Server)</span></div>
+        <pre><span class="t">svc.</span><span class="f">addAll</span><span class="t">(</span><span class="s">"Survive the wave!"</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">updateAll</span><span class="t">(</span><span class="v">1</span><span class="t">)</span>
+<span class="t">svc.</span><span class="f">incrementAll</span><span class="t">()</span>
+<span class="t">svc.</span><span class="f">finishAll</span><span class="t">()</span>
+<span class="t">svc.</span><span class="f">cancelAll</span><span class="t">()</span>
+<span class="t">svc.</span><span class="f">showAll</span><span class="t">()</span>
+<span class="t">svc.</span><span class="f">hideAll</span><span class="t">()</span>
+<span class="t">svc.</span><span class="f">configureAll</span><span class="t">({ </span><span class="n">hideDelay</span> <span class="t">=</span> <span class="v">4</span> <span class="t">})</span></pre>
+      </div>
+    </div>
+
+    <!-- FULL REF -->
+    <div class="section" id="fullref">
+      <div class="section-header">
+        <span class="section-number">15</span>
+        <h2>Full Reference</h2>
+      </div>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th style="width:260px">Function</th>
+            <th style="width:80px">Where</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>init(config)</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Bind UI elements. Required once before all other functions</td></tr>
+          <tr><td>add(title, total?, label?, opts?)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Create a new objective</td></tr>
+          <tr><td>update(progress)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Set progress to a value</td></tr>
+          <tr><td>increment()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Add +1 to progress</td></tr>
+          <tr><td>decrement()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Subtract 1 from progress</td></tr>
+          <tr><td>setProgress(n)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Alias for update()</td></tr>
+          <tr><td>finish()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Complete objective with tick animation</td></tr>
+          <tr><td>cancel()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Cancel objective without tick</td></tr>
+          <tr><td>reset()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Reset progress to 0</td></tr>
+          <tr><td>setTitle(title)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Change title while active</td></tr>
+          <tr><td>setLabel(label)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Change progress label while active</td></tr>
+          <tr><td>setTotal(n)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Change max count while active</td></tr>
+          <tr><td>setData(key, value)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Store custom data on the objective</td></tr>
+          <tr><td>getData(key)</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Get custom data from the objective</td></tr>
+          <tr><td>setPersistent(bool)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Toggle auto-hide</td></tr>
+          <tr><td>addStep(title)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Append a step to the objective</td></tr>
+          <tr><td>completeStep()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Advance to next step (or finish)</td></tr>
+          <tr><td>getCurrentStep()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns current step index</td></tr>
+          <tr><td>getSteps()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns steps array</td></tr>
+          <tr><td>setTimer(seconds)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Start a countdown</td></tr>
+          <tr><td>stopTimer()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Stop the countdown</td></tr>
+          <tr><td>queue(title, total?, label?, opts?)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Add to objective queue</td></tr>
+          <tr><td>clearQueue()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Clear the queue</td></tr>
+          <tr><td>getQueue()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns queue array</td></tr>
+          <tr><td>getQueueSize()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns queue length</td></tr>
+          <tr><td>show()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Force show UI</td></tr>
+          <tr><td>hide()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Hide UI (keeps objective)</td></tr>
+          <tr><td>pause()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Pause hide timer</td></tr>
+          <tr><td>resume()</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Resume hide timer</td></tr>
+          <tr><td>isVisible()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>True if UI is visible</td></tr>
+          <tr><td>isPaused()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>True if hide timer is paused</td></tr>
+          <tr><td>isActive()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>True if objective is running</td></tr>
+          <tr><td>get()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns current objective table</td></tr>
+          <tr><td>getTitle()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns current title</td></tr>
+          <tr><td>getProgress()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns current progress</td></tr>
+          <tr><td>getTotal()</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Returns current total</td></tr>
+          <tr><td>on(event, callback)</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Subscribe to an event</td></tr>
+          <tr><td>off(event, callback)</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Unsubscribe from an event</td></tr>
+          <tr><td>save(player, placeId?)</td><td><span style="color:var(--server);font-size:12px;font-family:'JetBrains Mono'">Server</span></td><td>Save to DataStore</td></tr>
+          <tr><td>load(player, placeId?)</td><td><span style="color:var(--server);font-size:12px;font-family:'JetBrains Mono'">Server</span></td><td>Load from DataStore and send to client</td></tr>
+          <tr><td>teleport(player, placeId, opts?)</td><td><span style="color:var(--server);font-size:12px;font-family:'JetBrains Mono'">Server</span></td><td>Save then teleport</td></tr>
+          <tr><td>clearSave(player, placeId?)</td><td><span style="color:var(--server);font-size:12px;font-family:'JetBrains Mono'">Server</span></td><td>Delete DataStore entry</td></tr>
+          <tr><td>hasSave(player, placeId?)</td><td><span style="color:var(--server);font-size:12px;font-family:'JetBrains Mono'">Server</span></td><td>Check if save exists</td></tr>
+          <tr><td>getState(player)</td><td><span style="color:var(--server);font-size:12px;font-family:'JetBrains Mono'">Server</span></td><td>Get in-memory state</td></tr>
+          <tr><td>configure(settings)</td><td><span style="color:var(--both);font-size:12px;font-family:'JetBrains Mono'">Both</span></td><td>Update config table</td></tr>
+          <tr><td>setHideDelay(n)</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Set seconds before auto-hide</td></tr>
+          <tr><td>setTweenInfo(info)</td><td><span style="color:var(--client);font-size:12px;font-family:'JetBrains Mono'">Client</span></td><td>Replace the tween animation</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CONFIGURE -->
+    <div class="section" id="configure">
+      <div class="section-header">
+        <span class="section-number">16</span>
+        <h2>Configure</h2>
+      </div>
+      <p>Adjust global settings for the service at any time.</p>
+
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Luau</span></div>
+        <pre><span class="c">-- Change how long the UI stays visible</span>
+<span class="t">svc.</span><span class="f">setHideDelay</span><span class="t">(</span><span class="v">5</span><span class="t">)</span>
+
+<span class="c">-- Replace the entire tween animation</span>
+<span class="t">svc.</span><span class="f">setTweenInfo</span><span class="t">(</span>
+    <span class="f">TweenInfo.new</span><span class="t">(</span><span class="v">0.6</span><span class="t">, Enum.EasingStyle.Back, Enum.EasingDirection.Out</span><span class="t">)</span>
+<span class="t">)</span>
+
+<span class="c">-- Or configure multiple at once</span>
+<span class="t">svc.</span><span class="f">configure</span><span class="t">({</span>
+    <span class="n">hideDelay</span> <span class="t">=</span> <span class="v">4</span><span class="t">,</span>
+<span class="t">})</span></pre>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('.section, .hero');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => s.id && observer.observe(s));
+
+  // Smooth scroll
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
